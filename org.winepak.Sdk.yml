@@ -5,12 +5,22 @@ id-platform: org.winepak.Platform
 branch: 3.0
 
 runtime: org.freedesktop.Platform
-runtime-version: 1.6
+runtime-version: unstable
 sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Debug
+  - org.freedesktop.Sdk.Locale
+  - org.freedesktop.Sdk.Docs
 
 add-extensions:
-  org.winepak.Platform.Compat32:
-    directory: lib/32bit
+  org.winepak.Sdk.Docs:
+    directory: share/runtime/docs
+    bundle: true
+    autodelete: true
+    no-autodownload: true
+
+  org.winepak.Platform.Compat.i386:
+    directory: lib/i386-linux-gnu
     version: 3.0
     versions: 3.0
     add-ld-path: lib
@@ -54,7 +64,7 @@ finish-args:
   - --sdk=org.winepak.Sdk//3.0
   - --runtime=org.winepak.Platform//3.0
   - --allow=multiarch
-  - --env=PATH=/app/bin:/app/lib/wine/bin:/app/lib/wine-32bit/bin:/app/lib/32bit/wine:/usr/lib/wine/bin:/usr/lib/wine-32bit/bin:/usr/bin:/usr/lib/32bit/bin
+  - --env=PATH=/app/bin:/app/lib/wine/bin:/app/lib/wine-32bit/bin:/app/lib/32bit/wine:/usr/lib/wine/bin:/usr/lib/wine-32bit/bin:/usr/bin
   - --env=XDG_DATA_DIRS=/app/share:/usr/share:/usr/share/runtime/share:/run/host/share
   - --env=WINEDEBUG=-all
   - --env=WINEPREFIX=/var/data/wine
@@ -116,7 +126,6 @@ modules:
   - name: platform-setup
     buildsystem: simple
     build-commands:
-      - mkdir -p /usr/lib/32bit
       - mkdir -p /usr/lib/wine
       - mkdir -p /usr/lib/extension
       - mkdir -p /usr/lib/sdk
@@ -155,6 +164,8 @@ modules:
             dest-filename: configure
             commands:
             - "./dist/configure $@"
+          - type: patch
+            path: 0001-atomic-Rename-local-__atomic_compare_exchange-to-avo.patch
 
   - name: wine-win64
     only-arches:
